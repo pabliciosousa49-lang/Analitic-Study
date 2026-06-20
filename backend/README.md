@@ -12,7 +12,7 @@ backend/
 ├── prisma/        # Schema e migrations do Prisma
 ├── middlewares/   # Tratamento global de erros
 ├── utils/         # Utilitarios compartilhados
-└── server.js      # Entrada da app Express
+└── server.js      # Entrada da aplicativo Express
 ```
 
 ## Instalação
