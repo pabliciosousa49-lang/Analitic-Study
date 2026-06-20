@@ -41,7 +41,11 @@ function generateAnalysisPdf(analysis) {
 
     addSection(doc, 'Resumo', analysis.summary);
     addSection(doc, 'Explicacao', analysis.explanation);
-    addSection(doc, 'Codigo enviado', analysis.code);
+    // Adiciona o código enviado com uma fonte monoespaçada menor, imitando um bloco de código de IDE
+    doc.moveDown();
+    doc.fontSize(14).font('Helvetica-Bold').text('Codigo enviado');
+    doc.moveDown(0.3);
+    doc.fontSize(9).font('Courier').text(analysis.code, { align: 'left' });
 
     doc.end();
   });
