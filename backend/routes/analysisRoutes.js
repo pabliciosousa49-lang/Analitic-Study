@@ -10,3 +10,4 @@ router.get('/analyses', analysisController.listAnalyses);
 router.get('/analyses/:id', analysisController.getAnalysis);
 
 module.exports = router;
+

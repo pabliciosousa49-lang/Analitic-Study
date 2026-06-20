@@ -30,7 +30,9 @@ async function listAnalyses(req, res, next) {
 
 async function getAnalysis(req, res, next) {
   try {
-    const analysis = await analysisService.getAnalysisById(req.params.id);
+    // Convertendo o ID que vem como texto na URL para um Número Inteiro
+    const analysisId = Number(req.params.id);
+    const analysis = await analysisService.getAnalysisById(analysisId);
 
     return res.status(200).json({
       success: true,
