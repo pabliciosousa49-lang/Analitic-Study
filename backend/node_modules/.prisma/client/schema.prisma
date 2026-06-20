@@ -1,0 +1,20 @@
+// Schema Prisma do CodeStudy AI.
+// Define o banco SQLite e o modelo Analysis usado pela API.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Analysis {
+  id          Int      @id @default(autoincrement())
+  language    String
+  code        String
+  summary     String
+  explanation String
+  createdAt   DateTime @default(now())
+}
