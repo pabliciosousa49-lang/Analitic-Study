@@ -1,3 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-zinc-900: #18181b;
+  --color-zinc-950: #09090b; /* Fundo principal ultra escuro */
+  --color-emerald-400: #34d399; /* LED / Detalhes verdes */
+}
