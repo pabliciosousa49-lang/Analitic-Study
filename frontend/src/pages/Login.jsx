@@ -1,17 +1,34 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { authService } from '../services/api' // Importação do serviço de API
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('') // Estado para capturar mensagens de erro
+  const [loading, setLoading] = useState(false) // Estado para controle de loading do botão
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    // Simulação temporária de autenticação para testar a rota
-    if (email && password) {
+    setError('')
+    setLoading(true)
+
+    try {
+      // Envia os dados reais para o backend
+      const data = await authService.login(email, password)
+      
+      // Guarda com segurança o token e dados básicos do usuário no localStorage
+      localStorage.setItem('@CodeStudy:token', data.token)
+      localStorage.setItem('@CodeStudy:user', JSON.stringify(data.user))
+
+      // Navega instantaneamente para o Dashboard
       navigate('/dashboard')
+    } catch (err) {
+      // Define a mensagem de erro retornada pelo backend (Ex: "E-mail ou senha incorretos.")
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -31,6 +48,14 @@ export default function Login() {
 
         {/* Formulário */}
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          
+          {/* Mensagem de Erro Dinâmica */}
+          {error && (
+            <div className="rounded-lg border border-rose-500/20 bg-rose-950/20 p-3 text-center text-xs font-medium text-rose-400">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-4 rounded-md">
             
             {/* Campo de E-mail */}
@@ -42,10 +67,11 @@ export default function Login() {
                 id="email"
                 type="email"
                 required
+                disabled={loading}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="seu@email.com"
-                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-all duration-200 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-all duration-200 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 disabled:opacity-50"
               />
             </div>
 
@@ -58,10 +84,11 @@ export default function Login() {
                 id="password"
                 type="password"
                 required
+                disabled={loading}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-all duration-200 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-all duration-200 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 disabled:opacity-50"
               />
             </div>
           </div>
@@ -70,9 +97,10 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              className="group relative flex w-full justify-center rounded-lg bg-emerald-500 py-3 text-sm font-bold text-zinc-950 shadow-lg shadow-emerald-500/10 transition-all duration-200 hover:bg-emerald-400 hover:shadow-emerald-400/20 active:scale-[0.98]"
+              disabled={loading}
+              className="group relative flex w-full justify-center rounded-lg bg-emerald-500 py-3 text-sm font-bold text-zinc-950 shadow-lg shadow-emerald-500/10 transition-all duration-200 hover:bg-emerald-400 hover:shadow-emerald-400/20 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Acessar Plataforma
+              {loading ? 'Autenticando...' : 'Acessar Plataforma'}
             </button>
           </div>
         </form>
