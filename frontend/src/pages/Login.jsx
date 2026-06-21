@@ -93,16 +93,30 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Botão de Entrar */}
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative flex w-full justify-center rounded-lg bg-emerald-500 py-3 text-sm font-bold text-zinc-950 shadow-lg shadow-emerald-500/10 transition-all duration-200 hover:bg-emerald-400 hover:shadow-emerald-400/20 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Autenticando...' : 'Acessar Plataforma'}
-            </button>
+          {/* Bloco de Ações (Botão Entrar + Link de Cadastro) */}
+          <div className="space-y-4">
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="group relative flex w-full justify-center rounded-lg bg-emerald-500 py-3 text-sm font-bold text-zinc-950 shadow-lg shadow-emerald-500/10 transition-all duration-200 hover:bg-emerald-400 hover:shadow-emerald-400/20 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Autenticando...' : 'Acessar Plataforma'}
+              </button>
+            </div>
+
+            <div className="text-center">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => navigate('/register')}
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors bg-transparent border-none cursor-pointer outline-none"
+              >
+                Não tem uma conta? Cadastre-se aqui
+              </button>
+            </div>
           </div>
+
         </form>
       </div>
     </div>
