@@ -20,9 +20,11 @@
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
     "pdfkit": "^0.15.1"
   },
   "devDependencies": {
@@ -30,4 +32,3 @@
     "prisma": "^6.0.0"
   }
 }
-
