@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './pages/Login'
+import Register from './pages/Register' // Importação da nova página de cadastro
 import Dashboard from './pages/Dashboard'
 import NotFound from './pages/NotFound'
 
@@ -8,6 +9,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <Login />
+  },
+  {
+    path: '/register', // Nova rota configurada no ecossistema
+    element: <Register />
   },
   {
     path: '/dashboard',
