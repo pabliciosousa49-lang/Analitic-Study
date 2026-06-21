@@ -18,3 +18,4 @@ model Analysis {
   explanation String
   createdAt   DateTime @default(now())
 }
+
