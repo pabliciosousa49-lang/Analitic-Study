@@ -1,33 +1,32 @@
-// Ponto de entrada do backend CodeStudy AI.
-// Configura Express, middlewares, rotas e inicializacao do servidor.
+import express from 'express'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import authRoutes from './routes/authRoutes.js'
+import analysisRoutes from './routes/analysisRoutes.js'
+import pdfRoutes from './routes/pdfRoutes.js'
+import { errorHandler } from './middlewares/errorHandler.js'
 
-require('dotenv').config();
+dotenv.config()
 
-const express = require('express');
-const cors = require('cors');
+const app = express()
+const PORT = process.env.PORT || 3000
 
-const analysisRoutes = require('./routes/analysisRoutes');
-const pdfRoutes = require('./routes/pdfRoutes');
-const errorHandler = require('./middlewares/errorHandler');
+// Configuração do CORS para permitir o acesso do Frontend (Vite)
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}))
 
-const app = express();
-const port = process.env.PORT || 3000;
+app.use(express.json())
 
-app.use(cors());
-app.use(express.json({ limit: '1mb' }));
+// Registro das Rotas do Sistema
+app.use('/api/auth', authRoutes)
+app.use('/api/analysis', analysisRoutes)
+app.use('/api/pdf', pdfRoutes)
 
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'CodeStudy AI backend online.'
-  });
-});
+// Middleware Global de Erros (sempre por último)
+app.use(errorHandler)
 
-app.use('/api', analysisRoutes);
-app.use('/api', pdfRoutes);
-
-app.use(errorHandler);
-
-app.listen(port, () => {
-  console.log(`CodeStudy AI backend running on port ${port}`);
-});
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor CodeStudy.AI rodando na porta ${PORT}`)
+})
