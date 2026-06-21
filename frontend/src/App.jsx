@@ -1,16 +1,24 @@
-function App() {
-  return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center bg-zinc-950 text-white font-sans">
-      <div className="border border-zinc-800 p-8 rounded-lg bg-zinc-900 shadow-xl text-center">
-        <h1 className="text-3xl font-bold text-emerald-400 mb-2">
-          CodeStudy AI
-        </h1>
-        <p className="text-zinc-400">
-          Ambiente frontend configurado com sucesso!
-        </p>
-      </div>
-    </div>
-  )
-}
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import NotFound from './pages/NotFound'
 
-export default App
+// Definição das rotas do ecossistema
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Login />
+  },
+  {
+    path: '/dashboard',
+    element: <Dashboard />
+  },
+  {
+    path: '*',
+    element: <NotFound />
+  }
+])
+
+export default function App() {
+  return <RouterProvider router={router} />
+}
