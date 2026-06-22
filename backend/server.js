@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import authRoutes from './routes/authRoutes.js'
 import analysisRoutes from './routes/analysisRoutes.js'
 import pdfRoutes from './routes/pdfRoutes.js'
+import aiRoutes from './routes/aiRoutes.js' // Importando as rotas do Gemini
 import { errorHandler } from './middlewares/errorHandler.js'
 
 dotenv.config()
@@ -23,6 +24,7 @@ app.use(express.json())
 app.use('/api/auth', authRoutes)
 app.use('/api/analysis', analysisRoutes)
 app.use('/api/pdf', pdfRoutes)
+app.use('/api/ai', aiRoutes) // Registrando a rota de integração com o Gemini
 
 // Middleware Global de Erros (sempre por último)
 app.use(errorHandler)
