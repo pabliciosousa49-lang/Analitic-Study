@@ -12,7 +12,6 @@ export const authService = {
     return data
   },
 
-  // 👇 Nova função de cadastro adicionada aqui
   register: async (email, password) => {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
@@ -21,6 +20,20 @@ export const authService = {
     })
     const data = await response.json()
     if (!response.ok) throw new Error(data.error || 'Erro ao criar conta.')
+    return data
+  }
+}
+
+// 👇 Novo serviço adicionado para consumir a API do Gemini
+export const aiService = {
+  analyzeCode: async (code) => {
+    const response = await fetch(`${API_URL}/ai/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Erro ao analisar o código.')
     return data
   }
 }
