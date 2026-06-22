@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { aiService } from '../services/api' // Importando o serviço da IA
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -10,6 +11,7 @@ export default function Dashboard() {
   // Estado para armazenar o código que o usuário vai colar e a resposta da IA
   const [code, setCode] = useState('')
   const [aiResponse, setAiResponse] = useState('')
+  const [loading, setLoading] = useState(false) // Estado de carregamento da IA
 
   const [modules] = useState([
     { id: 1, title: 'Lógica de Programação e Algoritmos', status: 'Em andamento', progress: 65, color: 'border-emerald-500/30 text-emerald-400' },
@@ -21,10 +23,23 @@ export default function Dashboard() {
     navigate('/')
   }
 
-  const handleAnalyzeCode = (e) => {
+  // Chamada real conectada ao seu backend + Gemini
+  const handleAnalyzeCode = async (e) => {
     e.preventDefault()
-    // Provisório: Apenas simula uma resposta enquanto não ligamos o Gemini
-    setAiResponse('Análise simulada: Seu código parece excelente! Na próxima fase ligaremos a IA do Gemini aqui para trazer os feedbacks reais.')
+    if (!code.trim()) return
+
+    setLoading(true)
+    setAiResponse('')
+
+    try {
+      const data = await aiService.analyzeCode(code)
+      setAiResponse(data.analysis) // Grava a resposta real do Gemini
+    } catch (error) {
+      console.error(error)
+      setAiResponse('❌ Ocorreu um erro ao tentar se comunicar com o servidor. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -93,7 +108,7 @@ export default function Dashboard() {
         <div className="p-8 space-y-8 flex-1 overflow-y-auto">
           
           {activeTab === 'dashboard' ? (
-            /* CONTEÚDO DA ABA PAINEL GERAL (Seu código original) */
+            /* CONTEÚDO DA ABA PAINEL GERAL */
             <>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="rounded-xl border border-zinc-900 bg-zinc-900/30 p-6 backdrop-blur-sm">
@@ -152,14 +167,16 @@ export default function Dashboard() {
                   <textarea
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
+                    disabled={loading}
                     placeholder="// Insira seu código JavaScript, Python, HTML..."
-                    className="w-full flex-1 min-h-[300px] rounded-lg border border-zinc-800 bg-zinc-950 p-4 font-mono text-sm text-zinc-300 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full flex-1 min-h-[300px] rounded-lg border border-zinc-800 bg-zinc-950 p-4 font-mono text-sm text-zinc-300 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
                   />
                   <button
                     type="submit"
-                    className="w-full rounded-lg bg-emerald-500 py-3 text-sm font-semibold text-zinc-950 hover:bg-emerald-400 transition-colors"
+                    disabled={loading || !code.trim()}
+                    className="w-full rounded-lg bg-emerald-500 py-3 text-sm font-semibold text-zinc-950 hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    🚀 Analisar Código com Gemini
+                    {loading ? '⏳ Analisando código...' : '🚀 Analisar Código com Gemini'}
                   </button>
                 </form>
               </div>
@@ -168,7 +185,12 @@ export default function Dashboard() {
               <div className="rounded-xl border border-zinc-900 bg-zinc-900/30 p-6 backdrop-blur-sm flex flex-col space-y-4">
                 <h3 className="text-lg font-bold text-white">Resultado da Análise</h3>
                 <div className="flex-1 rounded-lg border border-zinc-800 bg-zinc-950/50 p-4 overflow-y-auto">
-                  {aiResponse ? (
+                  {loading ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                      <span className="text-3xl animate-pulse">🤖</span>
+                      <p className="text-sm text-emerald-400 font-medium mt-2">O Gemini está lendo seu código e preparando o feedback...</p>
+                    </div>
+                  ) : aiResponse ? (
                     <p className="text-sm text-zinc-300 leading-relaxed font-mono whitespace-pre-line">{aiResponse}</p>
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center text-center p-6">
