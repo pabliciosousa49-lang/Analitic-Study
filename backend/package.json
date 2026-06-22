@@ -1,7 +1,7 @@
 {
   "name": "codestudy-ai-backend",
   "version": "1.0.0",
-  "description": "Backend Node.js, Express, Prisma, SQLite e PDFKit para o CodeStudy AI.",
+  "description": "",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",

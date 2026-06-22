@@ -1,16 +1,13 @@
-// Middleware global de erros para respostas JSON consistentes.
+const errorHandler = (err, req, res, next) => {
+  const statusCode = err.statusCode || 500
+  const message = err.message || 'Erro interno do servidor.'
 
-function errorHandler(error, req, res, next) {
-  const statusCode = error.statusCode || 500;
-
-  if (statusCode >= 500) {
-    console.error(error);
-  }
+  console.error(`🚨 [Erro]: ${message}`)
 
   return res.status(statusCode).json({
-    success: false,
-    message: error.message || 'Erro interno do servidor.'
-  });
+    error: message
+  })
 }
 
-module.exports = errorHandler;
+// Exportação corrigida para o formato CommonJS (compatível com o require)
+module.exports = { errorHandler }

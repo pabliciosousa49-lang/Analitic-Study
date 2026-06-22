@@ -1,10 +1,11 @@
-// Rotas de geracao de PDF.
+// Rotas de PDF do CodeStudy AI.
+import express from 'express'
+import pdfController from '../controllers/pdfController.js'
 
-const express = require('express');
-const pdfController = require('../controllers/pdfController');
+const router = express.Router()
 
-const router = express.Router();
+// Rota ajustada para receber o :id que o controller precisa
+router.post('/generate/:id', pdfController.generatePdf)
 
-router.post('/pdf/:id', pdfController.generatePdf);
-
-module.exports = router;
+// Exportação padrão moderna
+export default router

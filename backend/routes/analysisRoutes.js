@@ -1,13 +1,12 @@
 // Rotas de analise do CodeStudy AI.
+import express from 'express'
+import analysisController from '../controllers/analysisController.js'
 
-const express = require('express');
-const analysisController = require('../controllers/analysisController');
+const router = express.Router()
 
-const router = express.Router();
+router.post('/analyze', analysisController.analyzeCode)
+router.get('/analyses', analysisController.listAnalyses)
+router.get('/analyses/:id', analysisController.getAnalysis)
 
-router.post('/analyze', analysisController.analyzeCode);
-router.get('/analyses', analysisController.listAnalyses);
-router.get('/analyses/:id', analysisController.getAnalysis);
-
-module.exports = router;
-
+// Exportação padrão moderna
+export default router
