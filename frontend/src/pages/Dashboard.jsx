@@ -15,6 +15,13 @@ export default function Dashboard() {
   const [aiResponse, setAiResponse] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // ESTADOS DO QUIZ
+  const [quizQuestions, setQuizQuestions] = useState([])
+  const [quizLoading, setQuizLoading] = useState(false)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [selectedAnswers, setSelectedAnswers] = useState({}) // Salva { questionId: alternativeIndex }
+  const [isQuizActive, setIsQuizActive] = useState(false)
+
   const [modules] = useState([
     { id: 1, title: 'Lógica de Programação e Algoritmos', status: 'Em andamento', progress: 65, color: 'border-purple-500/20 bg-purple-500/5 text-purple-400' },
     { id: 2, title: 'Desenvolvimento Web Full-Stack com Node.js', status: 'Não iniciado', progress: 0, color: 'border-zinc-800 bg-zinc-900/10 text-zinc-500' },
@@ -31,6 +38,8 @@ export default function Dashboard() {
 
     setLoading(true)
     setAiResponse('')
+    setQuizQuestions([])
+    setIsQuizActive(false)
 
     try {
       const data = await aiService.analyzeCode(code)
@@ -41,6 +50,48 @@ export default function Dashboard() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleStartQuiz = async () => {
+    setQuizLoading(true)
+    try {
+      const data = await aiService.generateQuiz(code, aiResponse)
+      if (data && data.questions) {
+        setQuizQuestions(data.questions)
+        setCurrentQuestionIndex(0)
+        setSelectedAnswers({})
+        setIsQuizActive(true)
+      }
+    } catch (error) {
+      console.error(error)
+      alert('Não foi possível gerar o quiz neste momento. Tente novamente.')
+    } finally {
+      setQuizLoading(false)
+    }
+  }
+
+  const handleSelectAlternative = (alternativeIndex) => {
+    const currentQuestion = quizQuestions[currentQuestionIndex]
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [currentQuestion.id]: alternativeIndex
+    }))
+  }
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < quizQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1)
+    }
+  }
+
+  const handlePrevQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1)
+    }
+  }
+
+  const handleGenerateReport = () => {
+    alert('Fase 2 Concluída com Sucesso! Na próxima fase vamos renderizar o PDF real com as explicações comentadas.')
   }
 
   return (
@@ -69,7 +120,7 @@ export default function Dashboard() {
 
           <nav className="space-y-1.5">
             <button 
-              onClick={() => setActiveTab('dashboard')}
+              onClick={() => { setActiveTab('dashboard'); setIsQuizActive(false); }}
               className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
                 activeTab === 'dashboard' 
                   ? 'bg-gradient-to-r from-zinc-900 to-zinc-900/50 text-white border border-zinc-800/80 shadow-inner' 
@@ -111,7 +162,7 @@ export default function Dashboard() {
         
         <header className="h-16 border-b border-zinc-900 bg-zinc-950/20 backdrop-blur-md px-8 flex items-center justify-between">
           <h1 className="text-base font-bold text-zinc-100 tracking-tight flex items-center gap-2">
-            {activeTab === 'dashboard' ? 'Painel de Estudos' : 'Analisador de Código com IA'}
+            {activeTab === 'dashboard' ? 'Painel de Estudos' : isQuizActive ? 'Fixação de Conhecimento' : 'Analisador de Código com IA'}
           </h1>
           
           <div className="flex items-center gap-3">
@@ -190,6 +241,81 @@ export default function Dashboard() {
                 </div>
               </div>
             </>
+          ) : isQuizActive ? (
+            /* TELA EXCLUSIVA DO QUIZ DE FIXAÇÃO */
+            <div className="max-w-3xl mx-auto rounded-2xl border border-zinc-900 bg-zinc-950/20 p-8 backdrop-blur-xl flex flex-col space-y-6">
+              <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-md">
+                    Questão {currentQuestionIndex + 1} de {quizQuestions.length}
+                  </span>
+                  <h3 className="text-lg font-bold text-white tracking-tight mt-2">Teste seus Conhecimentos</h3>
+                </div>
+                <button 
+                  onClick={() => setIsQuizActive(false)}
+                  className="text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  ↩ Voltar para Análise
+                </button>
+              </div>
+
+              {/* Enunciado da Pergunta */}
+              <p className="text-zinc-200 text-base font-medium leading-relaxed bg-zinc-950/40 border border-zinc-900 p-5 rounded-xl">
+                {quizQuestions[currentQuestionIndex]?.question}
+              </p>
+
+              {/* Lista de Alternativas */}
+              <div className="space-y-3">
+                {quizQuestions[currentQuestionIndex]?.options.map((option, index) => {
+                  const isSelected = selectedAnswers[quizQuestions[currentQuestionIndex].id] === index
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handleSelectAlternative(index)}
+                      className={`w-full text-left rounded-xl p-4 text-sm font-medium transition-all duration-200 border flex items-center justify-between ${
+                        isSelected 
+                          ? 'bg-purple-600/10 border-purple-500 text-white shadow-md shadow-purple-500/5' 
+                          : 'bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:border-zinc-800 hover:text-zinc-200'
+                      }`}
+                    >
+                      <span>{option}</span>
+                      <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-purple-500 bg-purple-500' : 'border-zinc-700'}`}>
+                        {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Botões de Navegação do Quiz */}
+              <div className="flex items-center justify-between border-t border-zinc-900 pt-6 mt-4">
+                <button
+                  onClick={handlePrevQuestion}
+                  disabled={currentQuestionIndex === 0}
+                  className="px-5 py-2.5 rounded-xl border border-zinc-900 bg-zinc-950/40 text-xs font-bold text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  Voltar
+                </button>
+
+                {currentQuestionIndex === quizQuestions.length - 1 ? (
+                  <button
+                    onClick={handleGenerateReport}
+                    disabled={Object.keys(selectedAnswers).length < quizQuestions.length}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-xs font-bold text-white hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-purple-600/20"
+                  >
+                    📋 Gerar Relatório
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleNextQuestion}
+                    disabled={selectedAnswers[quizQuestions[currentQuestionIndex].id] === undefined}
+                    className="px-6 py-2.5 rounded-xl bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-white active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    Avançar
+                  </button>
+                )}
+              </div>
+            </div>
           ) : (
             /* ANALISADOR DE IA COM COMPONENTE DE RENDERIZAÇÃO CUSTOMIZADO */
             <div className="grid gap-6 lg:grid-cols-2 flex-1 items-stretch">
@@ -205,13 +331,13 @@ export default function Dashboard() {
                   <textarea
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    disabled={loading}
+                    disabled={loading || quizLoading}
                     placeholder="// Insira seu código JavaScript, Python, HTML..."
                     className="w-full flex-1 min-h-[380px] rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-4 font-mono text-sm text-zinc-200 placeholder-zinc-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-50 resize-none"
                   />
                   <button
                     type="submit"
-                    disabled={loading || !code.trim()}
+                    disabled={loading || quizLoading || !code.trim()}
                     className="w-full rounded-xl bg-gradient-to-r from-purple-600 via-purple-700 to-blue-600 py-3 text-sm font-bold text-white hover:opacity-95 active:scale-[0.99] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-600/10 hover:shadow-blue-600/20"
                   >
                     {loading ? '⏳ Analisando código...' : '🚀 Analisar Código com Gemini'}
@@ -221,7 +347,20 @@ export default function Dashboard() {
 
               {/* Lado Direito: Resposta com Renderizador Visual Avançado */}
               <div className="rounded-2xl border border-zinc-900 bg-zinc-950/20 p-6 backdrop-blur-xl flex flex-col space-y-4">
-                <h3 className="text-lg font-bold text-white tracking-tight">Resultado da Análise</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-white tracking-tight">Resultado da Análise</h3>
+                  
+                  {/* BOTÃO PARA DISPARAR O QUIZ DE FIXAÇÃO */}
+                  {aiResponse && !loading && (
+                    <button
+                      onClick={handleStartQuiz}
+                      disabled={quizLoading}
+                      className="px-3 py-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 text-xs font-bold text-purple-400 hover:bg-purple-500/20 active:scale-[0.98] transition-all flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {quizLoading ? '⏳ Criando Questões...' : '🧠 Treinar com Quiz'}
+                    </button>
+                  )}
+                </div>
                 
                 <div className="flex-1 rounded-xl border border-zinc-800/50 bg-zinc-950/40 p-5 overflow-y-auto max-h-[480px]">
                   {loading ? (
@@ -231,67 +370,63 @@ export default function Dashboard() {
                     </div>
                   ) : aiResponse ? (
                     
-                    /* RENDERIZADOR ESTRUTURADO DE MARKDOWN */
-                    <div className="prose prose-invert max-w-none text-sm text-zinc-300 leading-relaxed space-y-4 selection:bg-purple-500/30">
-                      <ReactMarkdown
-                        components={{
-                          // Customiza os títulos para ficarem brancos e em negrito saltado, removendo aviso do node
-                          h3: ({ ...props }) => (
-                            <h3 className="text-base font-extrabold text-white tracking-tight border-b border-zinc-800 pb-2 mt-6 mb-2 uppercase text-xs tracking-wider" {...props} />
-                          ),
-                          // Customiza os destaques normais feitos com asteriscos duplos, removendo aviso do node
-                          strong: ({ ...props }) => (
-                            <strong className="font-bold text-white bg-zinc-900 px-1 py-0.5 rounded border border-zinc-800 mx-0.5 text-[13px]" {...props} />
-                          ),
-                          // Detecta blocos de código e injeta o SyntaxHighlighter estilo VS Code, sem aviso de node
-                          code({ inline, className, children, ...props }) {
-                            const match = /language-(\w+)/.exec(className || '')
-                            return !inline && match ? (
-                              <div className="rounded-xl overflow-hidden border border-zinc-800 my-4 shadow-xl">
-                                <div className="bg-zinc-900 px-4 py-1.5 border-b border-zinc-800 flex items-center justify-between">
-                                  <span className="text-[10px] font-mono text-zinc-500 uppercase font-bold tracking-wide">{match[1]}</span>
-                                  <div className="flex gap-1.5">
-                                    <div className="w-2 h-2 rounded-full bg-zinc-700" />
-                                    <div className="w-2 h-2 rounded-full bg-zinc-700" />
-                                  </div>
-                                </div>
-                                <SyntaxHighlighter
-                                  style={vscDarkPlus}
-                                  language={match[1]}
-                                  PreTag="div"
-                                  customStyle={{ margin: 0, padding: '16px', background: '#09090b', fontSize: '13px' }}
-                                  {...props}
-                                >
-                                  {String(children).replace(/\n$/, '')}
-                                </SyntaxHighlighter>
-                              </div>
-                            ) : (
-                              // Códigos inline simples (ex: `myVar`) ganham cor diferenciada
-                              <code className="bg-purple-950/40 text-purple-400 font-mono text-xs px-1.5 py-0.5 rounded border border-purple-500/10 font-bold mx-0.5" {...props}>
-                                {children}
-                              </code>
-                            )
-                          }
-                        }}
+                  /* RENDERIZADOR ESTRUTURADO DE MARKDOWN */
+          <div className="prose prose-invert max-w-none text-sm text-zinc-300 leading-relaxed space-y-4 selection:bg-purple-500/30">
+            <ReactMarkdown
+              components={{
+                h3: ({ ...props }) => (
+                  <h3 className="text-base font-extrabold text-white tracking-tight border-b border-zinc-800 pb-2 mt-6 mb-2 uppercase text-xs tracking-wider" {...props} />
+                ),
+                strong: ({ ...props }) => (
+                  <strong className="font-bold text-white bg-zinc-900 px-1 py-0.5 rounded border border-zinc-800 mx-0.5 text-[13px]" {...props} />
+                ),
+                code({ inline, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || '')
+                  return !inline && match ? (
+                    <div className="rounded-xl overflow-hidden border border-zinc-800 my-4 shadow-xl">
+                      <div className="bg-zinc-900 px-4 py-1.5 border-b border-zinc-800 flex items-center justify-between">
+                        <span className="text-[10px] font-mono text-zinc-500 uppercase font-bold tracking-wide">{match[1]}</span>
+                        <div className="flex gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-zinc-700" />
+                          <div className="w-2 h-2 rounded-full bg-zinc-700" />
+                        </div>
+                      </div>
+                      <SyntaxHighlighter
+                        style={vscDarkPlus}
+                        language={match[1]}
+                        PreTag="div"
+                        customStyle={{ margin: 0, padding: '16px', background: '#09090b', fontSize: '13px' }}
+                        {...props}
                       >
-                        {aiResponse}
-                      </ReactMarkdown>
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
                     </div>
-
                   ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-6 my-auto">
-                      <span className="text-3xl mb-2">🤖</span>
-                      <p className="text-sm text-zinc-500 font-semibold">Aguardando envio do código para iniciar o diagnóstico...</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+                    <code className="bg-purple-950/40 text-purple-400 font-mono text-xs px-1.5 py-0.5 rounded border border-purple-500/10 font-bold mx-0.5" {...props}>
+                      {children}
+                    </code>
+                  )
+                }
+              }}
+            >
+              {aiResponse}
+            </ReactMarkdown>
+          </div>
 
-            </div>
-          )}
-
-        </div>
-      </main>
+        ) : (
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 my-auto">
+            <span className="text-3xl mb-2">🤖</span>
+            <p className="text-sm text-zinc-500 font-semibold">Aguardando envio do código para iniciar o diagnóstico...</p>
+          </div>
+        )}
+      </div>
     </div>
-  )
+
+  </div>
+)}
+
+</div>
+</main>
+</div>
+)
 }
