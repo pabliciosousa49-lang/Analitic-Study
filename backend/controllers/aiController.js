@@ -1,94 +1,66 @@
-import { GoogleGenAI } from '@google/genai'
+import { GoogleGenAI } from '@google/genai'; // Ou a biblioteca que você está usando para o Gemini
 
-export const analyzeCode = async (req, res) => {
-  try {
-    const { code } = req.body
+// Função que você já tem: export const analyzeCode = ...
 
-    if (!code) {
-      return res.status(400).json({ error: 'Nenhum código foi fornecido para análise.' })
-    }
-
-    // Inicializa o SDK do Gemini usando a chave que guardamos no .env
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-
-    // Criamos as instruções (Prompt) com regras estritas de formatação Markdown para o Front-end
-    const prompt = `
-      Você é um tutor de programação especialista e focado em ajudar estudantes de alto nível.
-      Analise o código fornecido e traga um diagnóstico claro, didático e focado na evolução do aluno.
-
-      Sua resposta DEVE seguir estritamente as seguintes regras de formatação Markdown para que o nosso sistema consiga renderizar a interface corretamente:
-      
-      1. TÍTULOS PRINCIPAIS: Use obrigatoriamente a sintaxe "### Nome do Título" para seções como Diagnóstico, Pontos Positivos, Oportunidades de Melhoria ou Correções.
-      2. DESTAQUES E TERMOS IMPORTANTES: Sempre que citar variáveis, funções, conceitos vitais ou palavras-chave importantes no meio do texto descritivo, envolva-as em **negrito** (exemplo: **const**, **useEffect**, **complexidade O(n)**).
-      3. EXEMPLOS DE CÓDIGO: Sempre que for mostrar um exemplo de código corrigido ou sugerido, você DEVE envelopá-lo estritamente usando três crases juntamente com a especificação da linguagem minúscula (exemplo: \`\`\`javascript ou \`\`\`python ou \`\`\`html). Nunca jogue linhas de código soltas no texto sem esse bloco de crases.
-
-      Código a ser analisado:
-      ${code}
-    `
-
-    // Faz a chamada oficial para o modelo do Gemini
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    })
-
-    // Retorna o texto gerado pela IA para o nosso frontend
-    return res.json({ analysis: response.text })
-
-  } catch (error) {
-    console.error('Erro na análise do Gemini:', error)
-    return res.status(500).json({ error: 'Erro interno ao processar a análise com a IA.' })
-  }
-}
-
-// NOVA FUNÇÃO: Gera um quiz estruturado de 20 questões baseado no código e análise anterior
 export const generateQuiz = async (req, res) => {
   try {
-    const { code, analysis } = req.body
+    const { code, analysis } = req.body;
 
     if (!code) {
-      return res.status(400).json({ error: 'Nenhum código foi fornecido para gerar o quiz.' })
+      return res.status(400).json({ error: 'O código é obrigatório para gerar o quiz.' });
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  // Substitua pela sua instância ou configuração atual do Gemini/OpenAI
+  // Exemplo usando o modelo correto:
+  // const model = ai.models.get('gemini-2.5-flash'); 
+  
+  const prompt = `
+    Você é um professor de programação focado em fixação de conteúdo.
+    Com base no código fornecido pelo aluno e na análise técnica feita previamente, gere um quiz com exatamente 3 questões de múltipla escolha para testar o conhecimento do aluno sobre os pontos fracos ou conceitos usados no código.
 
-    const prompt = `
-      Você é um professor de programação especialista. Com base no código do aluno e no diagnóstico prévio fornecido, crie um quiz de EXATAMENTE 20 questões de múltipla escolha para testar profundamente o conhecimento do aluno sobre os conceitos envolvidos, os erros cometidos e as correções necessárias.
+    CÓDIGO DO ALUNO:
+    \"\"\"
+    ${code}
+    \"\"\"
 
-      Código do Aluno:
-      ${code}
+    ANÁLISE DA IA:
+    \"\"\"
+    ${analysis || 'Não há análise prévia disponível.'}
+    \"\"\"
 
-      Diagnóstico Prévio:
-      ${analysis || 'Análise de boas práticas e sintaxe.'}
+    REGRAS CRÍTICAS:
+    1. Retorne ESTRUTURADAMENTE E APENAS um objeto JSON. Não use blocos de Markdown como \`\`\`json \`\`\`. Retorne o texto puro do JSON.
+    2. Cada questão deve ter exatamente 4 alternativas.
+    3. O campo 'answerIndex' deve ser o índice numérico da resposta correta (0 para a primeira, 1 para a segunda, etc).
+    4. O ID de cada questão deve ser um número único (1, 2, 3).
 
-      REGRAS CRÍTICAS DE RETORNO:
-      1. Seu retorno deve ser EXCLUSIVAMENTE um objeto JSON válido, sem blocos de texto explicativos antes ou depois, e sem marcações de crase de bloco (\`\`\`json). Devolva apenas as chaves do JSON bruto.
-      2. O formato do JSON deve conter uma propriedade raiz chamada "questions" que é um array contendo rigorosamente 20 objetos. Cada objeto deve seguir exatamente esta estrutura:
-      {
-        "id": 1,
-        "question": "Texto da pergunta aqui...",
-        "options": ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        "correctAnswerIndex": 0,
-        "explanation": "Explicação detalhada e didática do porquê esta alternativa está correta, destrinchando o erro das outras para validar o aprendizado."
-      }
+    FORMATO DO JSON ESPERADO:
+    {
+      "questions": [
+        {
+          "id": 1,
+          "question": "Texto da pergunta aqui?",
+          "options": ["Alternativa 0", "Alternativa 1", "Alternativa 2", "Alternativa 3"],
+          "answerIndex": 1
+        }
+      ]
+    }
+  `;
 
-      Gere questões técnicas inteligentes que variem entre lógica, sintaxe, comportamento de escopo, performance e boas práticas para a linguagem do código enviado.
-    `
+    // Adapte a chamada abaixo para a sintaxe exata da biblioteca de IA que você inicializou no seu projeto
+    const response = await model.generateContent({ prompt });
+    const responseText = response.text.trim();
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json"
-      }
-    })
+    // Converte a string da IA em objeto Javascript real antes de mandar pro front
+    const quizData = JSON.parse(responseText);
 
-    // Converte a string de texto purificada em um objeto JSON real para o frontend
-    const quizData = JSON.parse(response.text.trim())
-    return res.json(quizData)
+    return res.json(quizData);
 
   } catch (error) {
-    console.error('Erro ao gerar o quiz com o Gemini:', error)
-    return res.status(500).json({ error: 'Erro interno ao processar as questões do quiz.' })
+    console.error('Erro ao gerar quiz com IA:', error);
+    return res.status(500).json({ 
+      error: 'Falha interna ao gerar o quiz.',
+      questions: [] // Evita que o front quebre caso retorne erro
+    });
   }
-}
+};
