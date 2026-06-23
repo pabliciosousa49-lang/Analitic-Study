@@ -1,12 +1,13 @@
-import { Router } from 'express'
-import { analyzeCode, generateQuiz } from '../controllers/aiController.js'
+import { Router } from 'express';
+import { analyzeCode, generateQuiz } from '../controllers/aiController.js'; // Garanta que generateQuiz esteja importado
+import { edit_autenticacao } from '../middlewares/authMiddleware.js'; // Se você usar o middleware de JWT
 
-const router = Router()
+const router = Router();
 
-// Rota POST que o frontend vai acessar para enviar o código
-router.post('/analyze', analyzeCode)
+// Rota da análise que você já usa
+router.post('/analyze', analyzeCode);
 
-// Rota POST que o frontend vai acessar para gerar o quiz de 20 questões
-router.post('/quiz', generateQuiz)
+// NOVA ROTA: Gerador de Quiz (Recomendo proteger com seu middleware de autenticação se já tiver ativo)
+router.post('/generate-quiz', generateQuiz);
 
-export default router
+export default router;
