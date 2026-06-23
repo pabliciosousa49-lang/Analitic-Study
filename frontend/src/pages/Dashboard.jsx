@@ -1,17 +1,19 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { aiService } from '../services/api' // Importando o serviço da IA
+import { aiService } from '../services/api'
+
+// Importações para a renderização inteligente de Markdown e código estilo VS Code
+import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   
-  // Controle de qual aba está activa: 'dashboard' ou 'analyzer'
   const [activeTab, setActiveTab] = useState('dashboard')
-
-  // Estado para armazenar o código que o usuário vai colar e a resposta da IA
   const [code, setCode] = useState('')
   const [aiResponse, setAiResponse] = useState('')
-  const [loading, setLoading] = useState(false) // Estado de carregamento da IA
+  const [loading, setLoading] = useState(false)
 
   const [modules] = useState([
     { id: 1, title: 'Lógica de Programação e Algoritmos', status: 'Em andamento', progress: 65, color: 'border-purple-500/20 bg-purple-500/5 text-purple-400' },
@@ -23,7 +25,6 @@ export default function Dashboard() {
     navigate('/')
   }
 
-  // Chamada real conectada ao seu backend + Gemini
   const handleAnalyzeCode = async (e) => {
     e.preventDefault()
     if (!code.trim()) return
@@ -33,10 +34,10 @@ export default function Dashboard() {
 
     try {
       const data = await aiService.analyzeCode(code)
-      setAiResponse(data.analysis) // Grava a resposta real do Gemini
+      setAiResponse(data.analysis)
     } catch (error) {
       console.error(error)
-      setAiResponse('❌ Ocorreu um erro ao tentar se comunicar com o servidor. Tente novamente.')
+      setAiResponse('### ❌ Erro de Conexão\nOcorreu um erro ao tentar se comunicar com o servidor. Por favor, tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -45,21 +46,16 @@ export default function Dashboard() {
   return (
     <div className="relative min-h-screen w-screen bg-[#030712] font-sans text-zinc-100 antialiased overflow-x-hidden flex select-none">
       
-      {/* ==========================================
-          FONDO TECNOLÓGICO DE JORNADA (Luzes de Fundo)
-         ========================================== */}
+      {/* FONDO TECNOLÓGICO */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-[-10%] right-[-10%] h-[500px] w-[500px] rounded-full bg-blue-600/5 blur-[130px]" />
         <div className="absolute bottom-[-10%] left-[-5%] h-[500px] w-[500px] rounded-full bg-purple-600/5 blur-[130px]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293705_1px,transparent_1px),linear-gradient(to_bottom,#1f293705_1px,transparent_1px)] bg-[size:32px_32px]" />
       </div>
 
-      {/* ==========================================
-          1. MENU LATERAL (SIDEBAR PREMIUM)
-         ========================================== */}
+      {/* 1. MENU LATERAL */}
       <aside className="w-64 border-r border-zinc-900 bg-zinc-950/40 backdrop-blur-3xl p-6 flex flex-col justify-between hidden md:flex z-10 relative">
         <div className="space-y-8">
-          {/* Logo da Empresa */}
           <div className="flex items-center gap-3 px-2">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 p-[1px] shadow-md shadow-blue-500/5">
               <div className="h-full w-full bg-zinc-950 rounded-[11px] flex items-center justify-center font-black text-xs text-white">
@@ -71,7 +67,6 @@ export default function Dashboard() {
             </span>
           </div>
 
-          {/* Navegação de Abas */}
           <nav className="space-y-1.5">
             <button 
               onClick={() => setActiveTab('dashboard')}
@@ -103,7 +98,6 @@ export default function Dashboard() {
           </nav>
         </div>
 
-        {/* Botão de Logout */}
         <button 
           onClick={handleLogout}
           className="w-full rounded-xl border border-zinc-900 bg-zinc-950/60 py-2.5 text-xs font-bold text-zinc-500 hover:bg-rose-950/20 hover:text-rose-400 hover:border-rose-500/20 transition-all duration-200 tracking-wide uppercase"
@@ -112,18 +106,14 @@ export default function Dashboard() {
         </button>
       </aside>
 
-      {/* ==========================================
-          2. ÁREA DE CONTEÚDO PRINCIPAL
-         ========================================== */}
+      {/* 2. ÁREA DE CONTEÚDO PRINCIPAL */}
       <main className="flex-1 flex flex-col min-w-0 z-10 relative">
         
-        {/* CABEÇALHO SUPERIOR (TOPBAR) */}
         <header className="h-16 border-b border-zinc-900 bg-zinc-950/20 backdrop-blur-md px-8 flex items-center justify-between">
           <h1 className="text-base font-bold text-zinc-100 tracking-tight flex items-center gap-2">
             {activeTab === 'dashboard' ? 'Painel de Estudos' : 'Analisador de Código com IA'}
           </h1>
           
-          {/* Perfil do Aluno */}
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-xs font-bold text-zinc-400">Estudante</p>
@@ -136,15 +126,11 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* CORPO DINÂMICO CONFORME A ABA ATIVA */}
         <div className="p-8 space-y-8 flex-1 overflow-y-auto">
           
           {activeTab === 'dashboard' ? (
-            /* ==========================================
-                CONTEÚDO DA ABA: PAINEL GERAL
-               ========================================== */
             <>
-              {/* Grid de Métricas Principais */}
+              {/* Grid de Métricas */}
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="rounded-2xl border border-zinc-900 bg-zinc-950/30 p-6 backdrop-blur-xl relative overflow-hidden group hover:border-zinc-800 transition-all duration-300">
                   <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Horas de Estudo</p>
@@ -165,7 +151,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Trilhas Acadêmicas */}
+              {/* Trilhas Académicas */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Minha Trilha Acadêmica</h3>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -205,12 +191,10 @@ export default function Dashboard() {
               </div>
             </>
           ) : (
-            /* ==========================================
-                CONTEÚDO DA ABA: TELA DO ANALISADOR DE IA
-               ========================================== */
-            <div className="grid gap-6 lg:grid-cols-2 flex-1">
+            /* ANALISADOR DE IA COM COMPONENTE DE RENDERIZAÇÃO CUSTOMIZADO */
+            <div className="grid gap-6 lg:grid-cols-2 flex-1 items-stretch">
               
-              {/* Lado Esquerdo: Input de Código */}
+              {/* Lado Esquerdo: Textarea */}
               <div className="rounded-2xl border border-zinc-900 bg-zinc-950/20 p-6 backdrop-blur-xl flex flex-col space-y-4">
                 <div>
                   <h3 className="text-lg font-bold text-white tracking-tight">Cole seu código aqui</h3>
@@ -223,7 +207,7 @@ export default function Dashboard() {
                     onChange={(e) => setCode(e.target.value)}
                     disabled={loading}
                     placeholder="// Insira seu código JavaScript, Python, HTML..."
-                    className="w-full flex-1 min-h-[350px] rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-4 font-mono text-sm text-zinc-200 placeholder-zinc-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-50"
+                    className="w-full flex-1 min-h-[380px] rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-4 font-mono text-sm text-zinc-200 placeholder-zinc-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-50 resize-none"
                   />
                   <button
                     type="submit"
@@ -235,7 +219,7 @@ export default function Dashboard() {
                 </form>
               </div>
 
-              {/* Lado Direito: Resposta da IA (Pronto para a Fase de Renderização Avançada) */}
+              {/* Lado Direito: Resposta com Renderizador Visual Avançado */}
               <div className="rounded-2xl border border-zinc-900 bg-zinc-950/20 p-6 backdrop-blur-xl flex flex-col space-y-4">
                 <h3 className="text-lg font-bold text-white tracking-tight">Resultado da Análise</h3>
                 
@@ -246,8 +230,54 @@ export default function Dashboard() {
                       <p className="text-sm text-purple-400 font-bold tracking-wide animate-pulse">O Gemini está lendo seu código e preparando o feedback...</p>
                     </div>
                   ) : aiResponse ? (
-                    /* AQUI ENTRARÁ O COMPONENTE DE MARKDOWN COLORIDO NA FASE 2 */
-                    <p className="text-sm text-zinc-300 leading-relaxed font-mono whitespace-pre-line">{aiResponse}</p>
+                    
+                    /* RENDERIZADOR ESTRUTURADO DE MARKDOWN */
+                    <div className="prose prose-invert max-w-none text-sm text-zinc-300 leading-relaxed space-y-4 selection:bg-purple-500/30">
+                      <ReactMarkdown
+                        components={{
+                          // Customiza os títulos para ficarem brancos e em negrito saltado, removendo aviso do node
+                          h3: ({ ...props }) => (
+                            <h3 className="text-base font-extrabold text-white tracking-tight border-b border-zinc-800 pb-2 mt-6 mb-2 uppercase text-xs tracking-wider" {...props} />
+                          ),
+                          // Customiza os destaques normais feitos com asteriscos duplos, removendo aviso do node
+                          strong: ({ ...props }) => (
+                            <strong className="font-bold text-white bg-zinc-900 px-1 py-0.5 rounded border border-zinc-800 mx-0.5 text-[13px]" {...props} />
+                          ),
+                          // Detecta blocos de código e injeta o SyntaxHighlighter estilo VS Code, sem aviso de node
+                          code({ inline, className, children, ...props }) {
+                            const match = /language-(\w+)/.exec(className || '')
+                            return !inline && match ? (
+                              <div className="rounded-xl overflow-hidden border border-zinc-800 my-4 shadow-xl">
+                                <div className="bg-zinc-900 px-4 py-1.5 border-b border-zinc-800 flex items-center justify-between">
+                                  <span className="text-[10px] font-mono text-zinc-500 uppercase font-bold tracking-wide">{match[1]}</span>
+                                  <div className="flex gap-1.5">
+                                    <div className="w-2 h-2 rounded-full bg-zinc-700" />
+                                    <div className="w-2 h-2 rounded-full bg-zinc-700" />
+                                  </div>
+                                </div>
+                                <SyntaxHighlighter
+                                  style={vscDarkPlus}
+                                  language={match[1]}
+                                  PreTag="div"
+                                  customStyle={{ margin: 0, padding: '16px', background: '#09090b', fontSize: '13px' }}
+                                  {...props}
+                                >
+                                  {String(children).replace(/\n$/, '')}
+                                </SyntaxHighlighter>
+                              </div>
+                            ) : (
+                              // Códigos inline simples (ex: `myVar`) ganham cor diferenciada
+                              <code className="bg-purple-950/40 text-purple-400 font-mono text-xs px-1.5 py-0.5 rounded border border-purple-500/10 font-bold mx-0.5" {...props}>
+                                {children}
+                              </code>
+                            )
+                          }
+                        }}
+                      >
+                        {aiResponse}
+                      </ReactMarkdown>
+                    </div>
+
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center text-center p-6 my-auto">
                       <span className="text-3xl mb-2">🤖</span>
