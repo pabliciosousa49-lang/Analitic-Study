@@ -14,10 +14,10 @@ export const analyzeCode = async (req, res) => {
   try {
     const { code } = req.body;
     const model = await getModel();
-    
+
     const result = await model.generateContent(`Analise este código: ${code}`);
     const response = await result.response;
-    
+
     return res.json({ analysis: response.text() });
   } catch (error) {
     console.error("ERRO CRÍTICO NA IA:", error);
@@ -29,29 +29,31 @@ export const generateQuiz = async (req, res) => {
   try {
     const { code, analysis } = req.body;
     const model = await getModel();
-    
+
     // Prompt reforçado para incluir explicações
     const prompt = `
-      Com base neste código: ${code}
-      e nesta análise: ${analysis}
-      
-      Crie um quiz de 3 perguntas. Responda APENAS com um objeto JSON estruturado assim:
+      Com base neste código: ${code} 
+  e nesta análise: ${analysis}, 
+  crie um quiz de 10 perguntas.
+  
+  Responda APENAS com um objeto JSON estruturado assim:
+  {
+    "questions": [
       {
-        "questions": [
-          {
-            "id": 1,
-            "question": "Pergunta aqui",
-            "options": ["A", "B", "C", "D"],
-            "answerIndex": 0,
-            "explanation": "Explicação detalhada do porquê esta é a resposta correta."
-          }
-        ]
+        "id": 1,
+        "question": "Pergunta...",
+        "options": ["A", "B", "C", "D"],
+        "answerIndex": 0,
+        "explanation": "Explicação técnica detalhada."
       }
-    `;
+      // ... até completar 10 perguntas
+    ]
+  }
+`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    
+
     const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
     return res.json(JSON.parse(text));
   } catch (error) {
