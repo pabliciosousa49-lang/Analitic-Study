@@ -243,51 +243,62 @@ export default function Dashboard() {
             </>
           ) : isQuizActive ? (
             /* TELA EXCLUSIVA DO QUIZ DE FIXAÇÃO */
-            <div className="max-w-3xl mx-auto rounded-2xl border border-zinc-900 bg-zinc-950/20 p-8 backdrop-blur-xl flex flex-col space-y-6">
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
-                <div>
-                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-md">
-                    Questão {currentQuestionIndex + 1} de {quizQuestions.length}
-                  </span>
-                  <h3 className="text-lg font-bold text-white tracking-tight mt-2">Teste seus Conhecimentos</h3>
-                </div>
-                <button 
-                  onClick={() => setIsQuizActive(false)}
-                  className="text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-colors"
-                >
-                  ↩ Voltar para Análise
-                </button>
-              </div>
+<div className="max-w-3xl mx-auto rounded-2xl border border-zinc-900 bg-zinc-950/20 p-8 backdrop-blur-xl flex flex-col space-y-6">
+  <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
+    <div className="w-full">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-md">
+          Questão {currentQuestionIndex + 1} de {quizQuestions.length}
+        </span>
+        <button 
+          onClick={() => setIsQuizActive(false)}
+          className="text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-colors"
+        >
+          ↩ Voltar para Análise
+        </button>
+      </div>
+      
+      {/* BARRA DE PROGRESSO ADICIONADA */}
+      <div className="w-full bg-zinc-900 h-1.5 rounded-full mt-4 overflow-hidden">
+        <div 
+          className="bg-purple-600 h-full rounded-full transition-all duration-500 ease-out" 
+          style={{ width: `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%` }}
+        />
+      </div>
 
-              {/* Enunciado da Pergunta */}
-              <p className="text-zinc-200 text-base font-medium leading-relaxed bg-zinc-950/40 border border-zinc-900 p-5 rounded-xl">
-                {quizQuestions[currentQuestionIndex]?.question}
-              </p>
+      <h3 className="text-lg font-bold text-white tracking-tight mt-4">Teste seus Conhecimentos</h3>
+    </div>
+  </div>
 
-              {/* Lista de Alternativas */}
-              <div className="space-y-3">
-                {quizQuestions[currentQuestionIndex]?.options.map((option, index) => {
-                  const isSelected = selectedAnswers[quizQuestions[currentQuestionIndex].id] === index
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => handleSelectAlternative(index)}
-                      className={`w-full text-left rounded-xl p-4 text-sm font-medium transition-all duration-200 border flex items-center justify-between ${
-                        isSelected 
-                          ? 'bg-purple-600/10 border-purple-500 text-white shadow-md shadow-purple-500/5' 
-                          : 'bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:border-zinc-800 hover:text-zinc-200'
-                      }`}
-                    >
-                      <span>{option}</span>
-                      <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-purple-500 bg-purple-500' : 'border-zinc-700'}`}>
-                        {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
+  {/* Enunciado da Pergunta */}
+  <p className="text-zinc-200 text-base font-medium leading-relaxed bg-zinc-950/40 border border-zinc-900 p-5 rounded-xl">
+    {quizQuestions[currentQuestionIndex]?.question}
+  </p>
 
-              {/* Botões de Navegação do Quiz */}
+  {/* Lista de Alternativas */}
+  <div className="space-y-3">
+    {quizQuestions[currentQuestionIndex]?.options.map((option, index) => {
+      const isSelected = selectedAnswers[quizQuestions[currentQuestionIndex].id] === index
+      return (
+        <button
+          key={index}
+          onClick={() => handleSelectAlternative(index)}
+          className={`w-full text-left rounded-xl p-4 text-sm font-medium transition-all duration-200 border flex items-center justify-between ${
+            isSelected 
+              ? 'bg-purple-600/10 border-purple-500 text-white shadow-md shadow-purple-500/5' 
+              : 'bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:border-zinc-800 hover:text-zinc-200'
+          }`}
+        >
+          <span>{option}</span>
+          <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-purple-500 bg-purple-500' : 'border-zinc-700'}`}>
+            {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+          </div>
+        </button>
+      )
+    })}
+  </div>
+
+  {/* Botões de Navegação do Quiz */}
               <div className="flex items-center justify-between border-t border-zinc-900 pt-6 mt-4">
                 <button
                   onClick={handlePrevQuestion}
