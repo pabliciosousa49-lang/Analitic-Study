@@ -9,6 +9,7 @@ import { errorHandler } from './middlewares/errorHandler.js'
 
 dotenv.config()
 
+console.log("Chave API carregada:", process.env.GEMINI_API_KEY ? "SIM" : "NÃO");
 const app = express()
 const PORT = process.env.PORT || 3000
 
