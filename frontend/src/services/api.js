@@ -24,7 +24,7 @@ export const authService = {
   }
 }
 
-// 👇 Serviço atualizado para consumir a análise e a geração de quiz da IA
+// Service unificado e corrigido usando Fetch e as rotas certas do backend
 export const aiService = {
   analyzeCode: async (code) => {
     const response = await fetch(`${API_URL}/ai/analyze`, {
@@ -37,9 +37,8 @@ export const aiService = {
     return data
   },
 
-  // Novo método para solicitar o quiz de 20 perguntas baseado no código e diagnóstico
   generateQuiz: async (code, analysis) => {
-    const response = await fetch(`${API_URL}/ai/quiz`, {
+    const response = await fetch(`${API_URL}/ai/generate-quiz`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, analysis }),

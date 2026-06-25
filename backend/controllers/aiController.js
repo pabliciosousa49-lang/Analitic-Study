@@ -30,7 +30,24 @@ export const generateQuiz = async (req, res) => {
     const { code, analysis } = req.body;
     const model = await getModel();
     
-    const prompt = `Crie um quiz com 3 perguntas sobre este código: ${code}. Responda APENAS com JSON no formato: {"questions": [{"id":1, "question":"...", "options":["..."], "answerIndex":0}]}`;
+    // Prompt reforçado para incluir explicações
+    const prompt = `
+      Com base neste código: ${code}
+      e nesta análise: ${analysis}
+      
+      Crie um quiz de 3 perguntas. Responda APENAS com um objeto JSON estruturado assim:
+      {
+        "questions": [
+          {
+            "id": 1,
+            "question": "Pergunta aqui",
+            "options": ["A", "B", "C", "D"],
+            "answerIndex": 0,
+            "explanation": "Explicação detalhada do porquê esta é a resposta correta."
+          }
+        ]
+      }
+    `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
