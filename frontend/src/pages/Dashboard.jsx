@@ -36,27 +36,30 @@ export default function Dashboard() {
 
       {/* SIDEBAR */}
       <aside className="w-[300px] border-r border-white/5 bg-[#030712] flex flex-col z-30">
-        <div className="p-8 flex flex-col h-full">
-          <div className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)]" />
-            <div>
-              <h1 className="text-lg font-bold text-white">CodeStudy AI</h1>
-              <p className="text-[9px] uppercase tracking-widest text-zinc-400">Intelligent Code Analyzer</p>
-            </div>
-          </div>
+  <div className="p-8 flex flex-col h-full">
+    <div className="flex items-center gap-3 mb-16">
+      {/* Logo com CS centralizado */}
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] flex items-center justify-center">
+        <span className="text-white font-bold text-sm">CS</span>
+      </div>
+      <div>
+        <h1 className="text-lg font-bold text-white">CodeStudy AI</h1>
+        <p className="text-[9px] uppercase tracking-widest text-zinc-400">Intelligent Code Analyzer</p>
+      </div>
+    </div>
 
-          <div className="flex-1">
-            <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-xl text-white">
-              <span>⚡</span>
-              <span className="text-sm font-medium">Analisador Principal</span>
-            </div>
-          </div>
+    <div className="flex-1">
+      <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-xl text-white">
+        <span>⚡</span>
+        <span className="text-sm font-medium">Analisador Principal</span>
+      </div>
+    </div>
 
-          <button onClick={() => navigate('/')} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/5 bg-white/5 hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 transition-all">
-            <span>🚪</span> Sair do Sistema
-          </button>
-        </div>
-      </aside>
+    <button onClick={() => navigate('/')} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/5 bg-white/5 hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 transition-all">
+      <span>🚪</span> Sair do Sistema
+    </button>
+  </div>
+</aside>
 
       {/* MAIN CONTENT */}
       <main className="flex-1 h-screen relative overflow-hidden">
