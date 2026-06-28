@@ -1,12 +1,9 @@
-import { Router } from 'express';
+import express from 'express';
 import { analyzeCode, generateQuiz } from '../controllers/aiController.js';
 
-const router = Router();
+const router = express.Router();
 
-// Rota de análise original
 router.post('/analyze', analyzeCode);
-
-// Rota do quiz integrada
-router.post('/generate-quiz', generateQuiz);
+router.post('/quiz', generateQuiz);
 
 export default router;

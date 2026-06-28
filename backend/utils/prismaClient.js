@@ -1,7 +1,4 @@
-// Centraliza a instancia do Prisma Client para reutilizacao em services.
-
-const { PrismaClient } = require('@prisma/client');
-
+// utils/prismaClient.js
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-
-module.exports = prisma;
+export default prisma;

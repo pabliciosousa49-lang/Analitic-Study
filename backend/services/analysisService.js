@@ -1,7 +1,8 @@
 // Service responsavel por validar entradas, gerar analises mockadas e acessar o banco.
+// Versão otimizada: Sem dependências de PDF.
 
-const prisma = require('../utils/prismaClient');
-const AppError = require('../utils/AppError');
+import prisma from '../utils/prismaClient.js';
+import AppError from '../utils/AppError.js';
 
 function buildMockAnalysis(language, code) {
   const trimmedCode = code.trim();
@@ -40,7 +41,7 @@ function buildMockAnalysis(language, code) {
   };
 }
 
-async function createAnalysis({ language, code }) {
+export async function createAnalysis({ language, code }) {
   if (!language || typeof language !== 'string') {
     throw new AppError('O campo language e obrigatorio.', 400);
   }
@@ -61,7 +62,7 @@ async function createAnalysis({ language, code }) {
   });
 }
 
-async function listAnalyses() {
+export async function listAnalyses() {
   return prisma.analysis.findMany({
     orderBy: {
       createdAt: 'desc'
@@ -69,7 +70,7 @@ async function listAnalyses() {
   });
 }
 
-async function getAnalysisById(id) {
+export async function getAnalysisById(id) {
   const parsedId = Number(id);
 
   if (!Number.isInteger(parsedId) || parsedId <= 0) {
@@ -88,9 +89,3 @@ async function getAnalysisById(id) {
 
   return analysis;
 }
-
-module.exports = {
-  createAnalysis,
-  listAnalyses,
-  getAnalysisById
-};

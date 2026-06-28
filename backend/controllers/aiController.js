@@ -1,110 +1,53 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import PDFDocument from 'pdfkit';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// Função auxiliar para encontrar o modelo correto
-async function getModel() {
-  const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash" // Certifique-se de usar um modelo válido na sua conta
-  });
-  return model;
-}
+/**
+ * Função protegida para obter o modelo. 
+ * Se a API Key faltar, ela retorna null sem disparar erros que quebrem o servidor.
+ */
+const getModel = () => {
+    try {
+        if (!process.env.GEMINI_API_KEY) {
+            console.warn("AVISO: GEMINI_API_KEY não encontrada no .env");
+            return null;
+        }
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    } catch (err) {
+        console.error("Erro ao inicializar o modelo:", err.message);
+        return null;
+    }
+};
 
 export const analyzeCode = async (req, res) => {
-  try {
-    const { code } = req.body;
-    const model = await getModel();
+    try {
+        const model = getModel();
+        
+        // Se o modelo falhar (por chave ausente ou erro de config), 
+        // em vez de travar o servidor, retornamos uma resposta amigável
+        if (!model) {
+            return res.status(503).json({ 
+                error: "IA indisponível no momento. Por favor, tente novamente mais tarde." 
+            });
+        }
 
-    const result = await model.generateContent(`Analise este código: ${code}`);
-    const response = await result.response;
+        const { code } = req.body;
+        if (!code) return res.status(400).json({ error: "O campo 'code' é obrigatório." });
 
-    return res.json({ analysis: response.text() });
-  } catch (error) {
-    console.error("ERRO CRÍTICO NA IA:", error);
-    return res.status(500).json({ error: "Erro na comunicação com a IA: " + error.message });
-  }
+        // Chamada assíncrona com timeout implícito do SDK
+        const result = await model.generateContent(`Analise este código: ${code}`);
+        const response = await result.response;
+        
+        return res.json({ analysis: response.text() });
+        
+    } catch (error) {
+        // Logamos o erro detalhado no backend para você ver no terminal
+        console.error("Erro na rota analyzeCode:", error.message);
+        
+        // Retornamos 500 sem derrubar o processo do servidor
+        return res.status(500).json({ error: "Falha ao processar a análise com a IA." });
+    }
 };
 
 export const generateQuiz = async (req, res) => {
-  try {
-    const { code, analysis } = req.body;
-    const model = await getModel();
-
-    const prompt = `
-      Com base neste código: ${code} 
-      e nesta análise: ${analysis}, 
-      crie um quiz de 10 perguntas.
-      
-      Responda APENAS com um objeto JSON estruturado assim:
-      {
-        "questions": [
-          {
-            "id": 1,
-            "question": "Pergunta...",
-            "options": ["A", "B", "C", "D"],
-            "answerIndex": 0,
-            "explanation": "Explicação técnica detalhada."
-          }
-        ]
-      }
-    `;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-
-    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    return res.json(JSON.parse(text));
-  } catch (error) {
-    console.error("ERRO CRÍTICO NO QUIZ:", error);
-    return res.status(500).json({ error: "Erro ao gerar quiz: " + error.message });
-  }
-};
-
-// Nova função para gerar o PDF
-export const generatePdfReport = async (req, res) => {
-  try {
-    const { code, analysis, questions, selectedAnswers } = req.body;
-
-    const doc = new PDFDocument({ margin: 50 });
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=relatorio-estudo.pdf');
-
-    doc.pipe(res);
-
-    // Cabeçalho do Relatório
-    doc.fontSize(20).text('Relatório de Estudo - CodeStudy.AI', { align: 'center' });
-    doc.moveDown();
-
-    // Seção de Código
-    doc.fontSize(14).text('Código Analisado:', { underline: true });
-    doc.fontSize(10).font('Courier').text(code);
-    doc.moveDown();
-
-    // Seção de Análise
-    doc.fontSize(14).font('Helvetica').text('Resumo da Análise:', { underline: true });
-    doc.fontSize(12).text(analysis);
-    doc.moveDown(2);
-
-    // Seção do Quiz
-    doc.fontSize(14).text('Resultados do Quiz:', { underline: true });
-    doc.moveDown();
-
-    questions.forEach((q, index) => {
-      const userSelected = selectedAnswers[q.id];
-      const isCorrect = userSelected === q.answerIndex;
-      
-      doc.fontSize(12).text(`${index + 1}. ${q.question}`);
-      doc.fontSize(10).text(`Sua resposta: ${q.options[userSelected] || 'Não respondida'}`);
-      doc.fontSize(10).text(`Status: ${isCorrect ? '✅ Correto' : '❌ Incorreto'}`);
-      doc.fontSize(10).text(`Explicação: ${q.explanation}`, { italic: true });
-      doc.moveDown();
-    });
-
-    doc.end();
-  } catch (error) {
-    console.error("Erro ao gerar PDF:", error);
-    res.status(500).json({ error: "Falha ao gerar PDF: " + error.message });
-  }
+    return res.json({ message: "Funcionalidade de Quiz em desenvolvimento." });
 };
