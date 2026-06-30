@@ -31,7 +31,7 @@ O **CodeStudy** é uma plataforma Full-Stack projetada para desenvolvedores que 
 ## 📸 Preview
 
 <p align="center">
-  <img width="800" src="./frontend/public/CodeStudy.png"/>
+  <img width="800" src="../codestudy-ai/frontend/public/CodeStudy.png"/>
 </p>
 
 ---
