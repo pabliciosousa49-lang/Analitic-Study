@@ -28,11 +28,14 @@ O **CodeStudy** é uma plataforma Full-Stack projetada para desenvolvedores que 
 3. Configure sua variável e rotas de ambiente `GEMINI_API_KEY` no arquivo `.env` (na raiz).
 4. Para rodar, inicie o backend e o frontend conforme os scripts definidos no seu `package.json`.
 
+---
+
 ## 📸 Preview
 
 <p align="center">
-  <img width="800" src="../codestudy-ai/frontend/public/CodeStudy.png"/>
+  <img width="800" src="./frontend/public/CodeStudy.png"/>
 </p>
 
 ---
+
 *Desenvolvido por [José Pablicio Sousa Viana]*
