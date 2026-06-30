@@ -5,7 +5,7 @@ O **CodeStudy** é uma plataforma Full-Stack projetada para desenvolvedores que 
 ## 💡 Funcionalidades
 * **Análise de Código via IA**: Integração com a API do Gemini para feedback estruturado.
 * **Interface Moderna**: Layout focado em produtividade com design dark.
-* **Painel de Estudos**: Acompanhamento de progresso de módulos.
+* **Painel de Estudos**: Acompanhamento em analise de código.
 * **Segurança**: Rotas configuradas e ambiente de servidor robusto.
 
 ## 🛠️ Tecnologias Utilizadas
@@ -21,7 +21,7 @@ O **CodeStudy** é uma plataforma Full-Stack projetada para desenvolvedores que 
 
 ### Instalação
 1. Clone este repositório:
-   `git clone [LINK_DO_SEU_REPOSITORIO]`
+   `git clone [LINK_DO_REPOSITORIO]`
 2. Instale as dependências tanto no **root** (backend) quanto na pasta **frontend**:
    `npm install`
    `cd frontend && npm install`
