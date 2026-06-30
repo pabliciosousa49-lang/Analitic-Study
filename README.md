@@ -25,8 +25,14 @@ O **CodeStudy** é uma plataforma Full-Stack projetada para desenvolvedores que 
 2. Instale as dependências tanto no **root** (backend) quanto na pasta **frontend**:
    `npm install`
    `cd frontend && npm install`
-3. Configure sua variável de ambiente `GEMINI_API_KEY` no arquivo `.env` (na raiz).
+3. Configure sua variável e rotas de ambiente `GEMINI_API_KEY` no arquivo `.env` (na raiz).
 4. Para rodar, inicie o backend e o frontend conforme os scripts definidos no seu `package.json`.
+
+## 📸 Preview
+
+<p align="center">
+  <img width="800" src="./frontend/public/CodeStudy.png"/>
+</p>
 
 ---
 *Desenvolvido por [José Pablicio Sousa Viana]*
